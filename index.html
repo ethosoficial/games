@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETHOS TECHNOLOGIES V2.7 • ACCESS</title>
+
+
+<style>
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  color: #0f0;
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;
+}
+
+
+body {
+  position: relative;
+  animation: crtFlicker 0.12s infinite;
+}
+
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 0, 0.05) 0px,
+    rgba(0, 255, 0, 0.05) 2px,
+    rgba(0, 0, 0, 0.05) 3px
+  );
+  z-index: 9999;
+  mix-blend-mode: overlay;
+  opacity: 0.25;
+}
+
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(0,255,0,0.15), rgba(0,0,0,0.9));
+  z-index: 9998;
+  opacity: 0.35;
+}
+
+
+@keyframes crtFlicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.96; }
+}
+
+
+#matrix {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.75;
+  pointer-events: none;
+  filter: blur(0.6px);
+}
+
+
+/* ACCESS DENIED GEGANT */
+#accessDeniedBig {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 6rem;
+  font-weight: bold;
+  color: #f00;
+  text-shadow: 0 0 25px #f00, 0 0 60px #f00;
+  background: rgba(0,0,0,0.85);
+  opacity: 0;
+  z-index: 999999;
+  pointer-events: none;
+}
+
+
+@keyframes deniedFlash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  50% { opacity: 1; transform: skewX(8deg); }
+  70% { opacity: 1; transform: skewX(-8deg); }
+  100% { opacity: 0; transform: skewX(0deg); }
+}
+
+
+/* BLOQUEIG */
+#lockMessage {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
+  color: #f00;
+  text-shadow: 0 0 10px #f00;
+  opacity: 0;
+  z-index: 999999;
+}
+
+
+/* MILLORA 1 — SCREEN DISTORTION */
+.screen-distort {
+  animation: screenDistort 0.18s ease-out;
+}
+
+
+@keyframes screenDistort {
+  0% { transform: translate(0, 0) skewX(0deg); filter: blur(0); }
+  20% { transform: translate(-2px, 1px) skewX(3deg); filter: blur(1px); }
+  40% { transform: translate(2px, -1px) skewX(-2deg); filter: blur(0.5px); }
+  60% { transform: translate(-1px, 0) skewX(1deg); filter: blur(0.3px); }
+  80% { transform: translate(1px, 0) skewX(-1deg); filter: blur(0.1px); }
+  100% { transform: translate(0, 0) skewX(0deg); filter: blur(0); }
+}
+
+
+/* MILLORA 5 — ACCESS DENIED TOTALMENT VERMELL */
+.access-denied {
+  animation:
+    accessDeniedFlash 0.35s ease-in-out,
+    screenShake 0.45s ease-in-out;
+  border-color: #f00 !important;
+  box-shadow: 0 0 25px #f00 !important;
+  color: #f00 !important;
+}
+
+
+@keyframes accessDeniedFlash {
+  0%   { background: rgba(50,0,0,0.9); }
+  50%  { background: rgba(255,0,0,0.25); }
+  100% { background: rgba(50,0,0,0.9); }
+}
+
+
+@keyframes screenShake {
+  0% { transform: translate(0,0); }
+  20% { transform: translate(-8px, 4px); }
+  40% { transform: translate(6px, -6px); }
+  60% { transform: translate(-4px, 3px); }
+  80% { transform: translate(3px, -3px); }
+  100% { transform: translate(0,0); }
+}
+
+
+.alert-red {
+  color: #f00 !important;
+  border-color: #f00 !important;
+  text-shadow: 0 0 10px #f00 !important;
+  box-shadow: 0 0 25px rgba(255,0,0,0.4) !important;
+}
+
+
+#introScreen {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  animation: introFade 1.5s ease forwards;
+}
+
+
+@keyframes introFade {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+
+#text {
+  font-size: 2.6rem;
+  text-align: center;
+  letter-spacing: 3px;
+  max-width: 90%;
+  line-height: 1.7;
+  text-shadow: 0 0 10px #0f0;
+  margin-bottom: 40px;
+}
+
+
+#logo {
+  width: 260px;
+  height: 260px;
+  margin: 20px 0 40px;
+  opacity: 0;
+  filter: drop-shadow(0 0 25px #0f0);
+  border-radius: 20px;
+  animation:
+    logoIn 2.4s ease forwards 1.2s,
+    logoPulse 3s ease-in-out infinite alternate 3.6s;
+}
+
+
+@keyframes logoIn {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+
+@keyframes logoPulse {
+  from { filter: drop-shadow(0 0 25px #0f0); }
+  to   { filter: drop-shadow(0 0 55px #0f0); }
+}
+
+
+#footerText {
+  font-size: 2rem;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px #0f0;
+  opacity: 0;
+  animation: footerIn 2s ease forwards 2.8s;
+}
+
+
+@keyframes footerIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+#loginScreen {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(0,0,0,0.55);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+@keyframes loginGlitchIn {
+  0% { opacity: 0; transform: translateY(40px) skewX(8deg); filter: blur(3px); }
+  20% { opacity: 1; transform: translateY(-10px) skewX(-4deg); }
+  40% { transform: translateY(5px) skewX(2deg); }
+  60% { transform: translateY(-3px) skewX(-1deg); }
+  80% { transform: translateY(1px) skewX(0.5deg); }
+  100% { opacity: 1; transform: translateY(0) skewX(0deg); filter: blur(0); }
+}
+
+
+.loginEnter { animation: loginGlitchIn 0.7s ease forwards; }
+
+
+.terminal {
+  width: 100%;
+  max-width: 620px;
+  border: 2px solid #0f0;
+  background: rgba(0,8,0,0.95);
+  padding: 50px 40px 60px;
+  box-shadow: 0 0 60px rgba(0,255,0,0.4);
+  position: relative;
+}
+
+
+.fakeInput {
+  width: 420px;
+  border: 3px solid #0f0;
+  background: #000;
+  padding: 20px 30px;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  box-shadow: inset 0 0 15px rgba(0,255,0,0.3);
+  cursor: text;
+}
+
+
+.fakeInputText { display: inline-block; min-height: 30px; }
+
+
+.cursor {
+  display: inline-block;
+  width: 14px;
+  margin-left: 4px;
+  animation: blinkCursor 0.8s steps(1) infinite,
+             cursorGlow 1.8s ease-in-out infinite alternate,
+             cursorScanline 0.12s infinite;
+  font-weight: bold;
+  text-shadow: 0 0 8px #0f0;
+}
+
+
+@keyframes blinkCursor {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+
+@keyframes cursorGlow {
+  from { text-shadow: 0 0 6px #0f0, 0 0 12px #0f0; }
+  to   { text-shadow: 0 0 14px #0f0, 0 0 28px #0f0; }
+}
+
+
+@keyframes cursorScanline {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(0.5px); }
+  100% { transform: translateY(0); }
+}
+
+
+#realInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+#accessGranted {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,255,0,0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5rem;
+  font-weight: bold;
+  color: #0f0;
+  text-shadow: 0 0 25px #0f0;
+  opacity: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+
+@keyframes accessFlash {
+  0% { opacity: 0; }
+  10% { opacity: 1; background: rgba(255,255,255,0.8); }
+  30% { opacity: 1; background: rgba(0,255,0,0.2); }
+  60% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+
+@keyframes accessGlitch {
+  0% { transform: skewX(0deg); }
+  20% { transform: skewX(8deg); }
+  40% { transform: skewX(-6deg); }
+  60% { transform: skewX(3deg); }
+  80% { transform: skewX(-2deg); }
+  100% { transform: skewX(0deg); }
+}
+
+
+#alertBox {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 20, 0, 0.95);
+  border: 2px solid #0f0;
+  padding: 20px 40px;
+  font-size: 1.6rem;
+  color: #0f0;
+  text-shadow: 0 0 10px #0f0;
+  box-shadow: 0 0 25px rgba(0,255,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  letter-spacing: 2px;
+  z-index: 999;
+}
+
+
+</style>
+</head>
+
+
+<body>
+
+
+<canvas id="matrix"></canvas>
+
+
+<div id="introScreen">
+  <div id="text">BIENVENIDO, JUGADOR</div>
+  <img id="logo" src="https://cdn-1.webcatalog.io/catalog/hacker-typer/hacker-typer-icon.png">
+  <div id="footerText">Ethos Technologies v2.7</div>
+</div>
+
+
+<div id="loginScreen">
+  <div class="terminal" id="terminalBox">
+    <h1>ETHOS TECHNOLOGIES</h1>
+    <div class="restricted">ACCESO RESTRINGIDO</div>
+
+
+    <div class="fakeInput" id="fakeInput">
+      <span id="fakeText" class="fakeInputText"></span>
+      <span id="cursor" class="cursor">█</span>
+    </div>
+
+
+    <input type="password" id="realInput" autocomplete="off">
+
+
+    <div style="margin-top: 40px; font-size: 1.5rem;" class="blink">[ PRESIONE ENTER ]</div>
+  </div>
+</div>
+
+
+<div id="accessGranted">ACCESS GRANTED</div>
+<div id="accessDeniedBig">ACCESS DENIED</div>
+<div id="lockMessage"></div>
+
+
+<div id="alertBox"></div>
+
+
+<script>
+
+
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+
+const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン█▓▒░→←↑↓↔↕⇄';
+const fontSize = 18;
+let columns = Math.floor(canvas.width / fontSize);
+
+
+let drops = [];
+for (let i = 0; i < columns; i++) {
+  drops[i] = {
+    y: Math.random() * canvas.height,
+    speed: 2 + Math.random() * 4,
+    accel: 0.05 + Math.random() * 0.1
+  };
+}
+
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+  ctx.font = fontSize + 'px monospace';
+
+
+  for (let i = 0; i < drops.length; i++) {
+    const char = chars[Math.floor(Math.random() * chars.length)];
+    const x = i * fontSize;
+    const y = drops[i].y * fontSize;
+
+
+    ctx.fillStyle = '#fff';
+    ctx.fillText(char, x, y);
+
+
+    ctx.fillStyle = '#0f0';
+    ctx.fillText(char, x, y - fontSize);
+
+
+    drops[i].speed += drops[i].accel * (Math.random() * 0.5);
+    drops[i].y += drops[i].speed * 0.05;
+
+
+    if (y > canvas.height && Math.random() > 0.96) {
+      drops[i].y = 0;
+      drops[i].speed = 2 + Math.random() * 4;
+      drops[i].accel = 0.05 + Math.random() * 0.1;
+    }
+  }
+
+
+  requestAnimationFrame(drawMatrix);
+}
+
+
+requestAnimationFrame(drawMatrix);
+
+
+const fakeInput = document.getElementById("fakeInput");
+const fakeText = document.getElementById("fakeText");
+const cursor = document.getElementById("cursor");
+const realInput = document.getElementById("realInput");
+const terminal = document.getElementById("terminalBox");
+
+
+let errorCount = 0;
+let locked = false;
+let lockTimer = null;
+
+
+fakeInput.addEventListener("click", () => {
+  if (!locked) realInput.focus();
+});
+
+
+realInput.addEventListener("input", () => {
+  if (!locked) fakeText.textContent = "●".repeat(realInput.value.length);
+});
+
+
+realInput.addEventListener("keydown", e => {
+  if (locked) return;
+
+
+  terminal.classList.add("screen-distort");
+  setTimeout(() => terminal.classList.remove("screen-distort"), 180);
+
+
+  if (e.key === "Enter") verificar();
+});
+
+
+function showAlert(msg) {
+  const box = document.getElementById('alertBox');
+  box.textContent = msg;
+  box.style.opacity = "1";
+  setTimeout(() => box.style.opacity = "0", 2200);
+}
+
+
+function showAccessDeniedBig() {
+  const big = document.getElementById("accessDeniedBig");
+  big.style.animation = "deniedFlash 1.2s ease";
+  big.style.opacity = "1";
+  setTimeout(() => big.style.opacity = "0", 1200);
+}
+
+
+function lockSystem() {
+  locked = true;
+  realInput.value = "";
+  fakeText.textContent = "";
+
+
+  const lockMsg = document.getElementById("lockMessage");
+  let timeLeft = 30;
+
+
+  lockMsg.style.opacity = "1";
+  lockMsg.textContent = `SISTEMA BLOQUEADO — ${timeLeft}s`;
+
+
+  lockTimer = setInterval(() => {
+    timeLeft--;
+    lockMsg.textContent = `SISTEMA BLOQUEADO — ${timeLeft}s`;
+
+
+    if (timeLeft <= 0) {
+      clearInterval(lockTimer);
+      lockMsg.style.opacity = "0";
+      locked = false;
+      errorCount = 0;
+      realInput.focus();
+    }
+  }, 1000);
+}
+
+
+function playAccessGranted(url) {
+  const ag = document.getElementById("accessGranted");
+  ag.style.animation = "accessFlash 1.2s ease, accessGlitch 0.4s ease";
+  ag.style.opacity = "1";
+
+
+  setTimeout(() => {
+    ag.style.opacity = "0";
+
+
+    if (url) {
+      // REDIRECCIÓ NEGRA (sense flaix blanc)
+      document.body.innerHTML = `
+        <style>
+          body { margin:0; background:#000; overflow:hidden; }
+          iframe { border:0; width:100vw; height:100vh; }
+        </style>
+        <iframe src="${url}"></iframe>
+      `;
+    }
+  }, 1500);
+}
+
+
+setTimeout(() => {
+  const intro = document.getElementById('introScreen');
+  const login = document.getElementById('loginScreen');
+
+
+  intro.style.opacity = '0';
+
+
+  setTimeout(() => {
+    intro.style.display = 'none';
+    login.style.display = 'flex';
+    login.classList.add("loginEnter");
+    realInput.focus();
+  }, 1500);
+}, 5000);
+
+
+// -------------------------------
+//   FUNCIÓ PRINCIPAL VERIFICAR()
+// -------------------------------
+
+
+function verificar() {
+  if (locked) return;
+
+
+  const clave = realInput.value.trim();
+
+
+  if (!clave) {
+    errorCount++;
+    terminal.classList.add("access-denied");
+    const box = document.getElementById('alertBox');
+    box.classList.add("alert-red");
+
+
+    showAlert("!! ENTRADA VACÍA !!");
+
+
+    realInput.value = "";
+    fakeText.textContent = "";
+    realInput.focus();
+
+
+    if (errorCount >= 3) {
+      showAccessDeniedBig();
+      lockSystem();
+    }
+
+
+    setTimeout(() => {
+      terminal.classList.remove("access-denied");
+      box.classList.remove("alert-red");
+    }, 600);
+
+
+    return;
+  }
+
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res.success) {
+        playAccessGranted(res.url);
+      } else {
+        errorCount++;
+        terminal.classList.add("access-denied");
+        const box = document.getElementById('alertBox');
+        box.classList.add("alert-red");
+
+
+        showAlert("!! " + (res.mensaje || "CLAVE INCORRECTA") + " !!");
+
+
+        realInput.value = "";
+        fakeText.textContent = "";
+        realInput.focus();
+
+
+        if (errorCount >= 3) {
+          showAccessDeniedBig();
+          lockSystem();
+        }
+
+
+        setTimeout(() => {
+          terminal.classList.remove("access-denied");
+          box.classList.remove("alert-red");
+        }, 600);
+      }
+    })
+
+
+    .withFailureHandler(() => {
+      errorCount++;
+      terminal.classList.add("access-denied");
+      const box = document.getElementById('alertBox');
+      box.classList.add("alert-red");
+
+
+      showAlert("!! ERROR CRÍTICO !!");
+
+
+      if (errorCount >= 3) {
+        showAccessDeniedBig();
+        lockSystem();
+      }
+
+
+      setTimeout(() => {
+        terminal.classList.remove("access-denied");
+        box.classList.remove("alert-red");
+      }, 600);
+    })
+
+
+    .verificarContrasena(clave);
+}
+
+
+</script>
+
+
+</body>
+</html>
