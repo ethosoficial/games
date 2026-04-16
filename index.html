@@ -659,15 +659,11 @@ function verificar() {
   }
 
 
-  google.script.run
-    .withSuccessHandler(res => {
-      if (res.success) {
-        playAccessGranted(res.url);
-      } else {
-        errorCount++;
-        terminal.classList.add("access-denied");
-        const box = document.getElementById('alertBox');
-        box.classList.add("alert-red");
+ if (clave === "Reset") {
+    window.location.href = "ethos.html";
+} else {
+    // error
+}
 
 
         showAlert("!! " + (res.mensaje || "CLAVE INCORRECTA") + " !!");
