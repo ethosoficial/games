@@ -1,162 +1,336 @@
-// Ordenar juegos alfabéticamente
-const juegos = juegosRaw.sort((a, b) => a.nombre.localeCompare(b.nombre));
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETHOS PLAYER • NEON v3.1</title>
+<style>
+    :root {
+        --neon-cyan: #00f7ff;
+        --neon-pink: #ff00ff;
+        --neon-purple: #9d00ff;
+        --bg: #0a0a12;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        height: 100vh;
+        background: var(--bg);
+        color: var(--neon-cyan);
+        font-family: 'Courier New', monospace;
+        overflow: hidden;
+        position: relative;
+    }
+
+    canvas#matrix { position: fixed; inset: 0; z-index: 1; opacity: 0.65; }
+    
+    .grid-bg {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(rgba(0,247,255,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,247,255,0.04) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: gridMove 35s linear infinite;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    header {
+        position: relative;
+        z-index: 10;
+        padding: 20px 40px;
+        border-bottom: 2px solid var(--neon-cyan);
+        background: rgba(10,10,18,0.95);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 0 30px var(--neon-cyan);
+    }
+
+    .logo {
+        font-size: 2.1rem;
+        font-weight: 900;
+        letter-spacing: 8px;
+        text-shadow: 0 0 30px var(--neon-pink);
+    }
+
+    .controls {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    input, button {
+        background: rgba(0,0,0,0.7);
+        border: 2px solid var(--neon-cyan);
+        color: var(--neon-cyan);
+        padding: 12px 20px;
+        font-family: inherit;
+    }
+
+    button {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    button:hover {
+        background: var(--neon-pink);
+        color: #000;
+        box-shadow: 0 0 40px var(--neon-pink);
+        transform: translateY(-3px);
+    }
+
+    .cat-bar {
+        position: relative;
+        z-index: 10;
+        padding: 15px 40px;
+        background: rgba(10,10,25,0.9);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(0,247,255,0.3);
+    }
+
+    .cat-btn {
+        background: transparent;
+        border: 2px solid var(--neon-cyan);
+        color: var(--neon-cyan);
+        padding: 8px 20px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .cat-btn.active, .cat-btn:hover {
+        background: var(--neon-cyan);
+        color: #000;
+        box-shadow: 0 0 25px var(--neon-cyan);
+    }
+
+    .games-container {
+        position: relative;
+        z-index: 10;
+        padding: 40px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        max-height: calc(100vh - 220px);
+        overflow-y: auto;
+    }
+
+    .game-card {
+        background: rgba(15,15,35,0.85);
+        border: 2px solid var(--neon-cyan);
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-card:hover {
+        transform: translateY(-15px) scale(1.05);
+        box-shadow: 0 0 60px var(--neon-pink);
+        border-color: var(--neon-pink);
+    }
+
+    .game-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(transparent, rgba(255,0,255,0.1));
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .game-card:hover::before { opacity: 1; }
+
+    .game-title {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+        text-shadow: 0 0 15px currentColor;
+    }
+
+    .fav-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.6rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .scanline {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            transparent 0px,
+            transparent 3px,
+            rgba(0,255,200,0.07) 3px,
+            rgba(0,255,200,0.07) 6px
+        );
+        animation: scan 6s linear infinite;
+    }
+
+    @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(300%); } }
+    @keyframes gridMove { to { background-position: 50px 50px; } }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="grid-bg"></div>
+<div class="scanline"></div>
+
+<header>
+    <div class="logo">ETHOS<span style="color:var(--neon-pink)">_PLAYER</span></div>
+    <div class="controls">
+        <input type="text" id="searchBar" placeholder="BUSCAR JUEGO..." style="width:280px;">
+        <button onclick="openEthosAI()">ETHOS AI</button>
+        <button onclick="openSpotify()">SPOTIFY</button>
+        <button onclick="window.location.href='?page=secreto'">SALIR</button>
+    </div>
+</header>
+
+<div class="cat-bar" id="catBar"></div>
+
+<div class="games-container" id="listaJuegos"></div>
+
+<div style="position:fixed; bottom:15px; right:25px; z-index:20; font-size:1.1rem; opacity:0.6;" id="counter">0 JUEGOS</div>
+
+<script>
+// === MATRIX BACKGROUND ===
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+let w, h;
+
+function resizeCanvas() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const chars = "01アイウエオETHOS▓▒░█◆◇▽△";
+let drops = Array(Math.floor(w/16)).fill(1);
+
+function drawMatrix() {
+    ctx.fillStyle = 'rgba(10,10,18,0.12)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#00f7ff';
+    ctx.font = '15px monospace';
+
+    for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * 16, drops[i] * 16);
+        if (drops[i] * 16 > h && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+    }
+}
+setInterval(drawMatrix, 45);
+
+// === GAME LOGIC (mantengo tu lógica original) ===
+const juegos = juegosRaw.sort((a, b) => a.nombre.localeCompare(b.nombre)); // Asume que tienes juegosRaw definido
+
+let currentCat = "ALL";
+let favoritos = JSON.parse(localStorage.getItem("ethos_favs")) || [];
 
 const contenedor = document.getElementById("listaJuegos");
 const searchBar = document.getElementById("searchBar");
 const catBar = document.getElementById("catBar");
 
-let currentCat = "ALL";
-let favoritos = JSON.parse(localStorage.getItem("ethos_favs")) || [];
-
-/* FAVORITOS */
+// Toggle Favorito
 function toggleFav(nombre, e) {
-  e.stopPropagation();
-
-  favoritos = favoritos.includes(nombre)
-    ? favoritos.filter(f => f !== nombre)
-    : [...favoritos, nombre];
-
-  localStorage.setItem("ethos_favs", JSON.stringify(favoritos));
-
-  generarCategorias();
-  mostrarJuegos(searchBar.value, false);
+    e.stopPropagation();
+    favoritos = favoritos.includes(nombre)
+        ? favoritos.filter(f => f !== nombre)
+        : [...favoritos, nombre];
+    localStorage.setItem("ethos_favs", JSON.stringify(favoritos));
+    generarCategorias();
+    mostrarJuegos(searchBar.value, false);
 }
 
-/* CATEGORÍAS */
+// Generar Categorías
 function generarCategorias() {
-  catBar.innerHTML = "";
-  let finalTags = [];
+    catBar.innerHTML = "";
+    let finalTags = [];
 
-  const extraTags = [...new Set(juegos.map(j => j.tag))].sort();
+    const extraTags = [...new Set(juegos.map(j => j.tag))].sort();
+    if (favoritos.length > 0) finalTags.push("FAVS");
+    finalTags.push("ALL");
+    finalTags = [...finalTags, ...extraTags];
 
-  if (favoritos.length > 0) finalTags.push("FAVS");
-
-  finalTags.push("ALL");
-  finalTags = [...finalTags, ...extraTags];
-
-  finalTags.forEach(tag => {
-    const btn = document.createElement("button");
-    btn.className = `cat-btn ${currentCat === tag ? "active" : ""}`;
-
-    btn.textContent =
-      tag === "FAVS" ? "* FAVORITOS" :
-      tag === "ALL" ? "SYSTEM_ALL" :
-      tag;
-
-    btn.onclick = () => {
-      currentCat = tag;
-      generarCategorias();
-      mostrarJuegos(searchBar.value);
-    };
-
-    catBar.appendChild(btn);
-  });
+    finalTags.forEach(tag => {
+        const btn = document.createElement("button");
+        btn.className = `cat-btn ${currentCat === tag ? "active" : ""}`;
+        btn.textContent = tag === "FAVS" ? "★ FAVORITOS" : tag === "ALL" ? "SYSTEM_ALL" : tag;
+        btn.onclick = () => {
+            currentCat = tag;
+            generarCategorias();
+            mostrarJuegos(searchBar.value);
+        };
+        catBar.appendChild(btn);
+    });
 }
 
-/* MOSTRAR JUEGOS */
+// Mostrar Juegos
 function mostrarJuegos(filtro = "", animate = true) {
-  contenedor.innerHTML = "";
+    contenedor.innerHTML = "";
 
-  const filtrados = juegos.filter(j => {
-    const matchSearch = j.nombre.toLowerCase().includes(filtro.toLowerCase());
-    const matchCat =
-      currentCat === "ALL" ||
-      (currentCat === "FAVS"
-        ? favoritos.includes(j.nombre)
-        : j.tag === currentCat);
+    const filtrados = juegos.filter(j => {
+        const matchSearch = j.nombre.toLowerCase().includes(filtro.toLowerCase());
+        const matchCat = currentCat === "ALL" ||
+            (currentCat === "FAVS" ? favoritos.includes(j.nombre) : j.tag === currentCat);
+        return matchSearch && matchCat;
+    });
 
-    return matchSearch && matchCat;
-  });
+    filtrados.forEach((juego, i) => {
+        const div = document.createElement("div");
+        div.className = "game-card";
+        if (animate) div.style.animation = `fadeIn 0.6s ease forwards ${i * 0.04}s`;
 
-  filtrados.forEach((juego, index) => {
-    const div = document.createElement("div");
-    div.className = "game-card" + (animate ? " animate" : "");
+        div.innerHTML = `
+            <div class="fav-btn" onclick="toggleFav('${juego.nombre}', event)">${favoritos.includes(juego.nombre) ? '★' : '☆'}</div>
+            <div class="game-title">${juego.nombre}</div>
+            <div style="font-size:0.95rem; opacity:0.7;">${juego.tag || ''}</div>
+        `;
 
-    if (animate) {
-      div.style.animationDelay = `${Math.min(index * 0.03, 1.2)}s`;
-    } else {
-      div.style.opacity = "1";
-    }
+        div.onclick = () => abrirJuego(juego.url);
+        contenedor.appendChild(div);
+    });
 
-    div.innerHTML = `
-      <button class="btn-hacker" onclick="abrirJuego('${juego.url}')">
-        <img src="${juego.logo}" class="game-logo"
-             onerror="this.src='https://i.imgur.com/3g7nmJC.png'">
-        <span>> ${juego.nombre}</span>
-      </button>
-
-      <button class="fav-star ${favoritos.includes(juego.nombre) ? "active" : ""}"
-        onclick="toggleFav('${juego.nombre}', event)">
-        ${favoritos.includes(juego.nombre) ? "★" : "☆"}
-      </button>
-    `;
-
-    contenedor.appendChild(div);
-  });
-
-  document.getElementById("counter").textContent = filtrados.length;
+    document.getElementById("counter").textContent = `${filtrados.length} JUEGOS`;
 }
 
-/* ABRIR JUEGO */
+// Abrir Juego (mantengo tu lógica)
 function abrirJuego(url) {
-  const win = window.open("about:blank", "_blank");
-  const content = `
-    <html>
-    <head>
-      <title>ETHOS_SYSTEM</title>
-      <style>
-        body, html { margin:0; padding:0; height:100vh; overflow:hidden; background:#000; }
-        iframe { border:0; width:100%; height:100%; }
-      </style>
-    </head>
-    <body>
-      <iframe src="${url.trim()}" allowfullscreen></iframe>
-    </body>
-    </html>
-  `;
-  win.document.write(content);
-  win.document.close();
+    const win = window.open("about:blank", "_blank");
+    const content = `
+        <html><head><title>ETHOS GAME</title>
+        <style>body{margin:0;background:#000;overflow:hidden;}</style>
+        </head><body><iframe src="${url}" width="100%" height="100%" frameborder="0"></iframe></body></html>
+    `;
+    win.document.write(content);
+    win.document.close();
 }
 
-/* ETHOS_AI */
+// Funciones auxiliares
 function openEthosAI() {
-  window.open(
-    "https://script.google.com/macros/s/AKfycbw9TPeZki-pAXzV_S3_OHvpP9fC-5k9yU-UVNfJVSGVor3ls6IvcYvkDGKJg-FH_nwl/exec",
-    "_blank"
-  );
+    window.open("https://script.google.com/macros/s/AKfycbw9TPeZki-pAXzV_S3_OHvpP9fC-5k9yU-UVNfJVSGVor3ls6IvcYvkDGKJg-FH_nwl/exec", "_blank");
 }
 
-/* SPOTIFY */
 function openSpotify() {
-  window.open(
-    "https://open.spotify.com/embed/playlist/4L7KXkQeIQpxWNdXMfBVSM?utm_source=generator&theme=0",
-    "_blank"
-  );
+    window.open("https://open.spotify.com/embed/playlist/4L7KXkQeIQpxWNdXMfBVSM?utm_source=generator&theme=0", "_blank");
 }
 
-/* RELOJ */
-setInterval(() => {
-  document.getElementById("clock").textContent =
-    new Date().toLocaleTimeString();
-}, 1000);
-
-/* BUSCADOR */
-searchBar.addEventListener("input", e => {
-  mostrarJuegos(e.target.value);
-});
-
-/* INICIALIZACIÓN */
+// Inicialización
+searchBar.addEventListener("input", e => mostrarJuegos(e.target.value));
 generarCategorias();
 mostrarJuegos();
 
-/* EASTER EGG */
-document.addEventListener("keydown", e => {
-  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "n") {
-    document.body.classList.toggle("nocturne");
-  }
-});
+// Estilo de animación fade
+const style = document.createElement('style');
+style.innerHTML = `@keyframes fadeIn { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }`;
+document.head.appendChild(style);
 </script>
-
 </body>
 </html>
-
