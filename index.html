@@ -19,7 +19,7 @@
         overflow: hidden;
         position: relative;
     }
-    canvas#matrix { position: fixed; inset: 0; z-index: 1; opacity: 0.7; }
+    canvas#matrix { position: fixed; inset: 0; z-index: 1; opacity: 0.75; }
     
     .grid-bg {
         position: fixed;
@@ -27,7 +27,7 @@
         background: linear-gradient(rgba(0,247,255,0.04) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(0,247,255,0.04) 1px, transparent 1px);
         background-size: 50px 50px;
-        animation: gridMove 30s linear infinite;
+        animation: gridMove 28s linear infinite;
         z-index: 2;
     }
 
@@ -39,48 +39,49 @@
         align-items: center;
         justify-content: center;
         z-index: 10;
+        text-align: center;
     }
 
     .holo-logo {
-        width: 280px;
-        height: 280px;
-        border: 4px solid var(--neon-cyan);
+        width: 300px;
+        height: 300px;
+        border: 5px solid var(--neon-cyan);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 80px var(--neon-cyan),
-                    inset 0 0 70px rgba(0,247,255,0.5);
-        animation: holoPulse 4s ease-in-out infinite alternate;
+        box-shadow: 0 0 90px var(--neon-cyan),
+                    inset 0 0 80px rgba(0,247,255,0.6);
+        animation: holoPulse 3.5s ease-in-out infinite alternate;
     }
 
     .holo-logo::after {
         content: "ETHOS";
-        font-size: 5rem;
+        font-size: 5.2rem;
         font-weight: 900;
-        letter-spacing: 15px;
-        text-shadow: 0 0 50px var(--neon-pink);
+        letter-spacing: 18px;
+        text-shadow: 0 0 60px var(--neon-pink);
     }
 
     .enter-btn {
-        margin-top: 60px;
-        padding: 18px 60px;
-        font-size: 1.8rem;
+        margin-top: 70px;
+        padding: 20px 80px;
+        font-size: 2rem;
         background: transparent;
         border: 3px solid var(--neon-cyan);
         color: var(--neon-cyan);
         cursor: pointer;
-        letter-spacing: 6px;
+        letter-spacing: 8px;
         transition: all 0.4s;
     }
     .enter-btn:hover {
         background: var(--neon-pink);
-        color: black;
-        box-shadow: 0 0 50px var(--neon-pink);
-        transform: scale(1.1);
+        color: #000;
+        box-shadow: 0 0 60px var(--neon-pink);
+        transform: scale(1.08);
     }
 
-    @keyframes holoPulse { to { box-shadow: 0 0 110px var(--neon-cyan), 0 0 170px var(--neon-pink); } }
+    @keyframes holoPulse { to { box-shadow: 0 0 120px var(--neon-cyan), 0 0 180px var(--neon-pink); } }
     @keyframes gridMove { to { background-position: 50px 50px; } }
 </style>
 </head>
@@ -91,14 +92,10 @@
 
 <div class="center">
     <div class="holo-logo"></div>
-    <div style="margin-top:50px; font-size:3rem; letter-spacing:12px; text-shadow:0 0 40px var(--neon-cyan);">ETHOS TECHNOLOGIES</div>
-    <div style="margin-top:20px; font-size:1.4rem; opacity:0.8;">v3.1 • NEURAL ENTERTAINMENT SYSTEM</div>
+    <div style="margin-top:40px; font-size:3.2rem; letter-spacing:14px; text-shadow:0 0 40px var(--neon-cyan);">ETHOS TECHNOLOGIES</div>
+    <div style="margin-top:25px; font-size:1.5rem; opacity:0.85;">v3.1 • NEURAL ENTERTAINMENT SYSTEM</div>
     
     <button class="enter-btn" onclick="enterSystem()">ENTER SYSTEM</button>
-    
-    <div style="margin-top:80px; font-size:1.1rem; opacity:0.6;">
-        <a href="#" onclick="showAdmin()" style="color:var(--neon-pink); text-decoration:none;">ADMIN PANEL →</a>
-    </div>
 </div>
 
 <script>
@@ -114,17 +111,17 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-const chars = "01アイウエオETHOS▓▒░█◆◇";
-let drops = Array(Math.floor(w/18)).fill(1);
+const chars = "01アイウエオETHOS▓▒░█◆◇▽";
+let drops = Array(Math.floor(w/17)).fill(1);
 
 function draw() {
-    ctx.fillStyle = 'rgba(10,10,18,0.1)';
+    ctx.fillStyle = 'rgba(10,10,18,0.12)';
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#00f7ff';
     ctx.font = '16px monospace';
     for (let i = 0; i < drops.length; i++) {
-        ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*18, drops[i]*18);
-        if (drops[i]*18 > h && Math.random() > 0.975) drops[i] = 0;
+        ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*17, drops[i]*17);
+        if (drops[i]*17 > h && Math.random() > 0.97) drops[i] = 0;
         drops[i]++;
     }
 }
@@ -132,15 +129,6 @@ setInterval(draw, 45);
 
 function enterSystem() {
     window.location.href = "ethos.html";
-}
-
-function showAdmin() {
-    const pass = prompt("ADMIN PASSWORD:");
-    if (pass === "Reset") {
-        window.location.href = "secreto.html";
-    } else {
-        alert("ACCESO DENEGADO");
-    }
 }
 </script>
 </body>
