@@ -8,7 +8,6 @@
     :root {
         --neon-cyan: #00f7ff;
         --neon-pink: #ff00ff;
-        --neon-purple: #9d00ff;
         --bg: #0a0a12;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -20,7 +19,6 @@
         overflow: hidden;
         position: relative;
     }
-
     canvas#matrix { position: fixed; inset: 0; z-index: 1; opacity: 0.7; }
     
     .grid-bg {
@@ -31,68 +29,58 @@
         background-size: 50px 50px;
         animation: gridMove 30s linear infinite;
         z-index: 2;
-        pointer-events: none;
     }
 
-    #introScreen {
+    .center {
         position: absolute;
         inset: 0;
-        z-index: 50;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: radial-gradient(circle at center, rgba(15,15,35,0.95), #0a0a12);
-        transition: opacity 1.5s;
+        z-index: 10;
     }
 
     .holo-logo {
-        width: 260px;
-        height: 260px;
+        width: 280px;
+        height: 280px;
         border: 4px solid var(--neon-cyan);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 0 80px var(--neon-cyan),
-                    inset 0 0 60px rgba(0,247,255,0.5);
+                    inset 0 0 70px rgba(0,247,255,0.5);
         animation: holoPulse 4s ease-in-out infinite alternate;
     }
 
     .holo-logo::after {
         content: "ETHOS";
-        font-size: 4.8rem;
+        font-size: 5rem;
         font-weight: 900;
         letter-spacing: 15px;
         text-shadow: 0 0 50px var(--neon-pink);
     }
 
-    .terminal {
-        width: 720px;
-        max-width: 94vw;
-        background: rgba(8,10,22,0.97);
+    .enter-btn {
+        margin-top: 60px;
+        padding: 18px 60px;
+        font-size: 1.8rem;
+        background: transparent;
         border: 3px solid var(--neon-cyan);
-        box-shadow: 0 0 60px var(--neon-cyan),
-                    0 0 120px rgba(157,0,255,0.4);
-        padding: 55px 50px;
-        margin-top: 50px;
-    }
-
-    .fakeInput {
-        width: 100%;
-        background: #000;
-        border: 3px solid var(--neon-cyan);
-        padding: 24px 28px;
-        font-size: 2.3rem;
-        letter-spacing: 8px;
         color: var(--neon-cyan);
-        text-shadow: 0 0 15px var(--neon-cyan);
+        cursor: pointer;
+        letter-spacing: 6px;
+        transition: all 0.4s;
+    }
+    .enter-btn:hover {
+        background: var(--neon-pink);
+        color: black;
+        box-shadow: 0 0 50px var(--neon-pink);
+        transform: scale(1.1);
     }
 
-    .cursor { animation: blink 0.7s infinite; }
-
-    @keyframes blink { 50% { opacity: 0; } }
-    @keyframes holoPulse { to { box-shadow: 0 0 100px var(--neon-cyan), 0 0 160px var(--neon-pink); } }
+    @keyframes holoPulse { to { box-shadow: 0 0 110px var(--neon-cyan), 0 0 170px var(--neon-pink); } }
     @keyframes gridMove { to { background-position: 50px 50px; } }
 </style>
 </head>
@@ -101,25 +89,15 @@
 <canvas id="matrix"></canvas>
 <div class="grid-bg"></div>
 
-<div id="introScreen">
+<div class="center">
     <div class="holo-logo"></div>
-    <div style="margin-top:40px; font-size:2.9rem; letter-spacing:12px; text-shadow:0 0 40px var(--neon-cyan);">ETHOS TECHNOLOGIES</div>
-    <div style="margin-top:70px; font-size:1.35rem; opacity:0.75;">NEURAL ACCESS v3.1 • CLASSIFIED</div>
-</div>
-
-<div id="loginScreen" style="display:none; position:absolute; inset:0; z-index:30; display:flex; align-items:center; justify-content:center;">
-    <div class="terminal">
-        <h1 style="text-align:center; margin-bottom:35px; color:var(--neon-pink); letter-spacing:6px;">ACCESO RESTRINGIDO</h1>
-        
-        <div class="fakeInput" id="fakeInput">
-            <span id="fakeText"></span><span class="cursor">█</span>
-        </div>
-        
-        <input type="password" id="realInput" style="position:absolute; left:-9999px;">
-        
-        <div style="text-align:center; margin-top:50px; font-size:1.5rem; letter-spacing:4px; color:#00ffaa;" id="enterHint">
-            [ PRESIONE ENTER PARA CONECTAR ]
-        </div>
+    <div style="margin-top:50px; font-size:3rem; letter-spacing:12px; text-shadow:0 0 40px var(--neon-cyan);">ETHOS TECHNOLOGIES</div>
+    <div style="margin-top:20px; font-size:1.4rem; opacity:0.8;">v3.1 • NEURAL ENTERTAINMENT SYSTEM</div>
+    
+    <button class="enter-btn" onclick="enterSystem()">ENTER SYSTEM</button>
+    
+    <div style="margin-top:80px; font-size:1.1rem; opacity:0.6;">
+        <a href="#" onclick="showAdmin()" style="color:var(--neon-pink); text-decoration:none;">ADMIN PANEL →</a>
     </div>
 </div>
 
@@ -127,63 +105,43 @@
 // Matrix Rain
 const canvas = document.getElementById('matrix');
 const ctx = canvas.getContext('2d');
-let width, height;
+let w, h;
 
 function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
 }
 resize();
 window.addEventListener('resize', resize);
 
-const chars = "01アイウエオ0123456789ETHOS▓▒░█◆◇";
-let drops = Array(Math.floor(width/18)).fill(1);
+const chars = "01アイウエオETHOS▓▒░█◆◇";
+let drops = Array(Math.floor(w/18)).fill(1);
 
-function drawMatrix() {
+function draw() {
     ctx.fillStyle = 'rgba(10,10,18,0.1)';
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#00f7ff';
-    ctx.font = '15px monospace';
-
+    ctx.font = '16px monospace';
     for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random()*chars.length)];
-        ctx.fillText(text, i*18, drops[i]*18);
-        if (drops[i]*18 > height && Math.random() > 0.975) drops[i] = 0;
+        ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*18, drops[i]*18);
+        if (drops[i]*18 > h && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
     }
 }
-setInterval(drawMatrix, 40);
+setInterval(draw, 45);
 
-// Login
-const realInput = document.getElementById("realInput");
-const fakeText = document.getElementById("fakeText");
+function enterSystem() {
+    window.location.href = "ethos.html";
+}
 
-realInput.addEventListener("input", () => {
-    fakeText.textContent = "●".repeat(realInput.value.length);
-});
-
-realInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-        const clave = realInput.value.trim();
-        if (clave === "Reset") {
-            window.location.href = "ethos.html";   // ← Cambia si usas ?page=player
-        } else {
-            alert("❌ ACCESO DENEGADO");
-            realInput.value = "";
-            fakeText.textContent = "";
-        }
+function showAdmin() {
+    const pass = prompt("ADMIN PASSWORD:");
+    if (pass === "Reset") {
+        window.location.href = "secreto.html";
+    } else {
+        alert("ACCESO DENEGADO");
     }
-});
-
-// Intro → Login
-setTimeout(() => {
-    document.getElementById('introScreen').style.opacity = '0';
-    setTimeout(() => {
-        document.getElementById('introScreen').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
-        realInput.focus();
-    }, 1400);
-}, 3800);
+}
 </script>
 </body>
 </html>
